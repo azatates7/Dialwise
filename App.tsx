@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,6 +8,7 @@ import { navigationTheme, useTheme } from './src/theme';
 import { useDefaultDialer } from './src/hooks/UseDefaultDialer';
 import { OnboardingScreen } from './src/screens/onboarding/OnboardingScreen';
 import { DevCallPanel } from './src/screens/dev/DevCallPanel';
+import { requestCallPermissions } from './src/native/Permissions';
 
 type TabParamList = {
   Keypad: undefined;
@@ -39,6 +40,14 @@ function Root() {
   const { isDefault, request } = useDefaultDialer();
   // "Şimdi değil" yalnızca bu oturum için geçerli; uygulama yeniden açılınca onboarding tekrar gösterilir.
   const [skipped, setSkipped] = useState(false);
+
+  // Varsayılan telefon uygulaması olunca arama ve bildirim izinleri istenir.
+  // Rol bazı izinleri otomatik verir; verilmiş izinler için sistem pencere göstermez.
+  useEffect(() => {
+    if (isDefault) {
+      requestCallPermissions().catch(() => undefined);
+    }
+  }, [isDefault]);
 
   const statusBar = <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />;
 

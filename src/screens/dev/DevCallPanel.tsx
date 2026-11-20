@@ -4,18 +4,10 @@
 // Kullanıcıya gösterilmediği için metinler i18n'e eklenmedi.
 
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CallControl, CallInfo, PhoneAccount } from '../../native/CallControl';
 import { useActiveCalls } from '../../hooks/UseActiveCalls';
 import { useTheme } from '../../theme';
-
-async function ensurePhonePermissions(): Promise<boolean> {
-  const result = await PermissionsAndroid.requestMultiple([
-    PermissionsAndroid.PERMISSIONS.CALL_PHONE,
-    PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
-  ]);
-  return Object.values(result).every(r => r === PermissionsAndroid.RESULTS.GRANTED);
-}
 
 function Button({ label, onPress, color }: { label: string; onPress: () => void; color: string }) {
   return (
@@ -32,12 +24,14 @@ export function DevCallPanel() {
   const [accounts, setAccounts] = useState<PhoneAccount[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    ensurePhonePermissions()
-      .then(() => CallControl.getPhoneAccounts())
+  // İzinler App.tsx'te isteniyor; izin sonradan verilirse "Reload SIM" ile yeniden okunur.
+  const loadAccounts = () => {
+    CallControl.getPhoneAccounts()
       .then(setAccounts)
       .catch(e => setError(String(e)));
-  }, []);
+  };
+
+  useEffect(loadAccounts, []);
 
   const call = async () => {
     setError(null);
@@ -100,9 +94,12 @@ export function DevCallPanel() {
       </View>
       {error && <Text style={{ color: colors.callRed }}>{error}</Text>}
 
-      <Text style={[styles.caption, { color: colors.textSecondary }]}>
-        SIM: {accounts.map(a => a.label || a.id).join(', ') || '-'}
-      </Text>
+      <View style={styles.row}>
+        <Text style={[styles.caption, styles.flex, { color: colors.textSecondary }]}>
+          SIM: {accounts.map(a => a.label || a.id).join(', ') || '-'}
+        </Text>
+        <Button label="Reload SIM" color={colors.accent} onPress={loadAccounts} />
+      </View>
       <Text style={[styles.caption, { color: colors.textSecondary }]}>
         Audio: route={audio.route} muted={String(audio.muted)} supported=[{audio.supportedRoutes.join(', ')}]
       </Text>
@@ -126,6 +123,7 @@ export function DevCallPanel() {
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 12 },
   caption: { fontSize: 12 },
+  flex: { flex: 1 },
   row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   input: { flex: 1, borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 18 },
   card: { borderRadius: 12, padding: 12, gap: 6 },

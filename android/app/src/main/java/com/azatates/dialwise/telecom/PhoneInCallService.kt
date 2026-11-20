@@ -1,23 +1,43 @@
 package com.azatates.dialwise.telecom
 
-import android.content.Intent
 import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.InCallService
-import com.azatates.dialwise.MainActivity
 
 /**
  * Sistem, uygulama varsayılan telefon uygulamasıyken her çağrı için bu servise bağlanır.
- * Çağrıları CallManager'a iletir.
+ * Çağrıları CallManager'a iletir, bildirimleri ve görüşme ekranını yönetir.
  */
 class PhoneInCallService : InCallService() {
+
+    private val listener = object : CallManager.Listener {
+        override fun onCallAdded(info: CallInfo) {
+            // Giden aramada görüşme ekranı hemen açılır. Gelen aramada yalnızca bildirim gösterilir:
+            // kilit ekranında/ekran kapalıyken full-screen intent görüşme ekranını açar,
+            // telefon kullanılıyorsa üstten bildirim çıkar.
+            if (info.direction == "outgoing" || info.state == "select_account") {
+                startActivity(InCallActivity.intent(this@PhoneInCallService))
+            }
+            updateNotification()
+        }
+
+        override fun onCallStateChanged(info: CallInfo) = updateNotification()
+
+        override fun onCallRemoved(id: String) = updateNotification()
+
+        override fun onAudioStateChanged(audio: AudioInfo) = Unit
+    }
 
     override fun onCreate() {
         super.onCreate()
         CallManager.service = this
+        CallNotificationHelper.ensureChannels(this)
+        CallManager.addListener(listener)
     }
 
     override fun onDestroy() {
+        CallManager.removeListener(listener)
+        CallNotificationHelper.cancel(this)
         if (CallManager.service === this) {
             CallManager.service = null
         }
@@ -27,12 +47,6 @@ class PhoneInCallService : InCallService() {
     override fun onCallAdded(call: Call) {
         super.onCallAdded(call)
         CallManager.onCallAdded(call)
-        // GEÇİCİ (Faz 1 / Adım 3): uygulamayı öne getirir, böylece geliştirme panelinden
-        // cevaplanabilir. Adım 4'te gelen arama bildirimi, Adım 5'te InCall ekranı ile değişecek.
-        startActivity(
-            Intent(this, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),
-        )
     }
 
     override fun onCallRemoved(call: Call) {
@@ -45,5 +59,17 @@ class PhoneInCallService : InCallService() {
     override fun onCallAudioStateChanged(audioState: CallAudioState?) {
         super.onCallAudioStateChanged(audioState)
         CallManager.onAudioStateChanged(audioState)
+    }
+
+    /** Çalan arama varsa "gelen arama", yoksa ilk canlı çağrı için "devam eden arama" bildirimi. */
+    private fun updateNotification() {
+        val calls = CallManager.activeCalls()
+        val ringing = calls.firstOrNull { it.state == "ringing" }
+        val live = calls.firstOrNull { it.state != "disconnected" && it.state != "disconnecting" }
+        when {
+            ringing != null -> CallNotificationHelper.showIncoming(this, ringing)
+            live != null -> CallNotificationHelper.showOngoing(this, live)
+            else -> CallNotificationHelper.cancel(this)
+        }
     }
 }
