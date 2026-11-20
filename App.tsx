@@ -7,6 +7,7 @@ import { I18nProvider, TKey, useI18n } from './src/i18n';
 import { navigationTheme, useTheme } from './src/theme';
 import { useDefaultDialer } from './src/hooks/UseDefaultDialer';
 import { OnboardingScreen } from './src/screens/onboarding/OnboardingScreen';
+import { DevCallPanel } from './src/screens/dev/DevCallPanel';
 
 type TabParamList = {
   Keypad: undefined;
@@ -27,7 +28,8 @@ function Placeholder({ labelKey }: { labelKey: TKey }) {
   );
 }
 
-const KeypadScreen = () => <Placeholder labelKey="tabs.keypad" />;
+// GEÇİCİ: geliştirme derlemesinde Keypad sekmesi native çağrı katmanını test eden paneli gösterir.
+const KeypadScreen = () => (__DEV__ ? <DevCallPanel /> : <Placeholder labelKey="tabs.keypad" />);
 const RecentsScreen = () => <Placeholder labelKey="tabs.recents" />;
 const ContactsScreen = () => <Placeholder labelKey="tabs.contacts" />;
 

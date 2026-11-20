@@ -12,11 +12,12 @@ class DialwisePackage : BaseReactPackage() {
     override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? =
         when (name) {
             DialerRoleModule.NAME -> DialerRoleModule(reactContext)
+            CallControlModule.NAME -> CallControlModule(reactContext)
             else -> null
         }
 
     override fun getReactModuleInfoProvider(): ReactModuleInfoProvider = ReactModuleInfoProvider {
-        listOf(DialerRoleModule.NAME).associateWith { name ->
+        listOf(DialerRoleModule.NAME, CallControlModule.NAME).associateWith { name ->
             ReactModuleInfo(
                 name,
                 name,
