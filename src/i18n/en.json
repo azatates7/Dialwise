@@ -1,0 +1,12 @@
+{
+  "app.name": "Dialwise",
+  "tabs.keypad": "Keypad",
+  "tabs.recents": "Recents",
+  "tabs.contacts": "Contacts",
+  "menu.records": "Records",
+  "menu.settings": "Settings",
+  "common.today": "Today",
+  "common.yesterday": "Yesterday",
+  "common.ok": "OK",
+  "common.cancel": "Cancel"
+}
