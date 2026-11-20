@@ -8,5 +8,10 @@
   "common.today": "Bugün",
   "common.yesterday": "Dün",
   "common.ok": "Tamam",
-  "common.cancel": "İptal"
+  "common.cancel": "İptal",
+  "onboarding.title": "Telefon uygulaman olarak ayarla",
+  "onboarding.body": "Arama yapmak ve gelen aramaları almak için {appName} varsayılan telefon uygulaman olmalı. Bunu daha sonra sistem ayarlarından değiştirebilirsin.",
+  "onboarding.action": "Varsayılan yap",
+  "onboarding.later": "Şimdi değil",
+  "onboarding.denied": "{appName} varsayılan telefon uygulaması yapılmadı. Aramalar mevcut telefon uygulamanda açılacak."
 }

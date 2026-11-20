@@ -8,5 +8,10 @@
   "common.today": "Today",
   "common.yesterday": "Yesterday",
   "common.ok": "OK",
-  "common.cancel": "Cancel"
+  "common.cancel": "Cancel",
+  "onboarding.title": "Set as your phone app",
+  "onboarding.body": "To make and receive calls, {appName} needs to be your default phone app. You can change this later in system settings.",
+  "onboarding.action": "Set as default",
+  "onboarding.later": "Not now",
+  "onboarding.denied": "{appName} was not set as the default phone app. Calls will open in your current phone app."
 }

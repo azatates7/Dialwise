@@ -8,6 +8,12 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
+  },  
+  "codegenConfig": {
+    "name": "DialwiseSpecs",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": { "javaPackageName": "com.azatates.dialwise.specs" }
   },
   "dependencies": {
     "@react-native/new-app-screen": "0.88.1",

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { I18nProvider, TKey, useI18n } from './src/i18n';
 import { navigationTheme, useTheme } from './src/theme';
+import { useDefaultDialer } from './src/hooks/UseDefaultDialer';
+import { OnboardingScreen } from './src/screens/onboarding/OnboardingScreen';
 
 type TabParamList = {
   Keypad: undefined;
@@ -32,10 +34,24 @@ const ContactsScreen = () => <Placeholder labelKey="tabs.contacts" />;
 function Root() {
   const { dark, colors } = useTheme();
   const { t } = useI18n();
+  const { isDefault, request } = useDefaultDialer();
+  // "Şimdi değil" yalnızca bu oturum için geçerli; uygulama yeniden açılınca onboarding tekrar gösterilir.
+  const [skipped, setSkipped] = useState(false);
+
+  const statusBar = <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />;
+
+  if (!isDefault && !skipped) {
+    return (
+      <>
+        {statusBar}
+        <OnboardingScreen onRequest={request} onSkip={() => setSkipped(true)} />
+      </>
+    );
+  }
 
   return (
     <NavigationContainer theme={navigationTheme(dark, colors)}>
-      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
+      {statusBar}
       <Tab.Navigator
         screenOptions={{
           tabBarIconStyle: { display: 'none' },
